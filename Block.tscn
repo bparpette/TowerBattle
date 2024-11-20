@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmh6g704tqyra"]
+
+[ext_resource type="Script" path="res://Blocks.gd" id="1_nueui"]
+
+[node name="Block" type="RigidBody3D"]
+collision_layer = 4
+collision_mask = 6
+gravity_scale = 0.0
+continuous_cd = true
+max_contacts_reported = 4
+script = ExtResource("1_nueui")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+

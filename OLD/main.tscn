@@ -1,0 +1,72 @@
+[gd_scene load_steps=5 format=3 uid="uid://oyl0r3l3s4ft"]
+
+[ext_resource type="Script" path="res://Camera.gd" id="1_5mfts"]
+[ext_resource type="Script" path="res://GameManager.gd" id="1_vhjog"]
+[ext_resource type="Script" path="res://UI.gd" id="3_k5ifl"]
+
+[sub_resource type="Environment" id="Environment_0t8v2"]
+background_mode = 1
+background_color = Color(0.82351, 0.952509, 0.943858, 1)
+background_energy_multiplier = 1.07
+ambient_light_source = 2
+ambient_light_color = Color(0.9304, 0.941401, 0.939623, 1)
+ambient_light_energy = 0.81
+tonemap_exposure = 1.21
+ssao_radius = 0.45
+ssao_power = 15.2946
+glow_intensity = 0.0
+
+[node name="Main" type="Node3D"]
+
+[node name="CameraP1" type="Camera3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0.5, -0.866025, 0, 0.866025, 0.5, 1, 2.18557e-08, -3.78552e-08, -5.36574, 5, 11.4777)
+script = ExtResource("1_5mfts")
+
+[node name="CameraP2" type="Camera3D" parent="."]
+transform = Transform3D(-4.37114e-08, -0.5, 0.866025, 0, 0.866025, 0.5, -1, 2.18557e-08, -3.78552e-08, 15, 5, 15)
+script = ExtResource("1_5mfts")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, 0, 10, 0)
+light_energy = 2.859
+
+[node name="GameManager" type="Node3D" parent="."]
+script = ExtResource("1_vhjog")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0t8v2")
+
+[node name="ControlP1" type="Control" parent="."]
+layout_mode = 3
+anchor_right = 0.052
+anchor_bottom = 0.093
+offset_right = 0.0960007
+offset_bottom = -0.264
+script = ExtResource("3_k5ifl")
+
+[node name="Label" type="Label" parent="ControlP1"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 3.875
+anchor_bottom = 1.537
+offset_right = 95.5
+offset_bottom = 4.78
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+
+[node name="ControlP2" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_k5ifl")
+
+[node name="Label" type="Label" parent="ControlP2"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 25.79
+anchor_right = 28.639
+anchor_bottom = 1.0
+offset_left = -11.6001
+offset_top = 13.0
+offset_right = -5.56006
+offset_bottom = -4.0

@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3 uid="uid://c00g6eip05xj2"]
+
+[ext_resource type="Script" path="res://UI.gd" id="1_k0eae"]
+
+[node name="Ui" type="CanvasLayer"]
+script = ExtResource("1_k0eae")
+
+[node name="ScoreLabel" type="Label" parent="."]
+anchors_preset = -1
+anchor_right = 0.058
+anchor_bottom = 0.059
+offset_right = 0.183998
+offset_bottom = 3.768
+
+[node name="GameOverContainer" type="Control" parent="."]
+layout_mode = 3
+anchor_right = 0.022
+anchor_bottom = 0.026
+offset_right = 14.656
+offset_bottom = 23.152
+
+[node name="GameOverText" type="Label" parent="GameOverContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.6
+anchor_bottom = 0.474
+offset_right = 16.0
+offset_bottom = 4.04
+
+[node name="FinalScoreLabel" type="Label" parent="GameOverContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 0.379
+offset_right = 20.0
+offset_bottom = 7.84
+
+[node name="RestartText" type="Label" parent="GameOverContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.528
+anchor_bottom = 0.344
+offset_right = 18.88
+offset_bottom = 9.24
+
+
+[node name="WinnerLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.05
+anchor_right = 0.3
+anchor_bottom = 0.08
+theme_override_styles/fill = SubResource("StyleBoxFlat_xxxx")
+show_percentage = false
