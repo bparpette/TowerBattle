@@ -23,7 +23,17 @@ func draw_trajectory(points: Array):
 	if points.size() < 2:
 		return
 		
-	line_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+	var valid_points = []
 	for point in points:
+		if point.y > 0:
+			valid_points.append(point)
+		elif valid_points.size() > 0:  # Si on a déjà commencé à dessiner et qu'on passe sous y=0
+			break  # On arrête de dessiner
+	
+	if valid_points.size() < 2:  # S'il n'y a pas assez de points valides
+		return
+		
+	line_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+	for point in valid_points:
 		line_mesh.surface_add_vertex(point)
 	line_mesh.surface_end()
