@@ -32,11 +32,11 @@ var game_ended = false
 # Variables de puissance de tir
 var charging_power_p1 = false
 var charging_power_p2 = false
-var current_power_p1 = 0.0
-var current_power_p2 = 0.0
-var min_power = 10.0
-var max_power = 50.0
-var power_increase_rate = 30.0  # Vitesse d'augmentation de la puissance
+# var current_power_p1 = 0.0
+# var current_power_p2 = 0.0
+# var min_power = 10.0
+# var max_power = 50.0
+# var power_increase_rate = 30.0  # Vitesse d'augmentation de la puissance
 # Dans les variables au début
 var trajectory_line_p1: Node3D
 var trajectory_line_p2: Node3D
@@ -56,14 +56,15 @@ var can_shoot_p1 = false
 var can_shoot_p2 = false
 
 # Variables pour l'oscillation de la trajectoire
-var oscillation_speed = 1.0  # Vitesse d'oscillation
-var min_angle = PI/6  # Angle minimum (30 degrés)
-var max_angle = PI/2.5  # Environ 72 degrés
+var oscillation_speed = 0.3  # Vitesse d'oscillation
+# var min_angle = PI/8  # Angle minimum (30 degrés)
+var min_angle = PI/30  # Angle minimum (30 degrés)
+var max_angle = PI/6 
 var current_angle_p1 = 0.0
 var current_angle_p2 = 0.0
 var oscillation_direction_p1 = 1.0  # 1.0 pour monter, -1.0 pour descendre
 var oscillation_direction_p2 = 1.0
-const BASE_POWER = 13.0  # Puissance de base
+const BASE_POWER = 20.0  # Puissance de base
 
 # Add at the top with other variables
 var cleanup_height = -10.0  # Height at which blocks are deleted
@@ -144,27 +145,27 @@ func spawn_projectile(player_num: int):
 	
 	if player_num == 1:
 		start_pos = Vector3(
-			last_block_p1.position.x,
-			last_block_p1.position.y + 1,
-			last_block_p1.position.z
+			-3,  # Même position que dans update_trajectory_preview
+			1,
+			0
 		)
 		target_pos = Vector3(
-			last_block_p2.position.x,
+			20,
 			last_block_p2.position.y,
-			last_block_p2.position.z
+			15
 		)
 		trajectory_line = trajectory_line_p1
 		angle = current_angle_p1
 	else:
 		start_pos = Vector3(
-			last_block_p2.position.x,
-			last_block_p2.position.y + 1,
-			last_block_p2.position.z
+			23,  # Même position que dans update_trajectory_preview
+			1,
+			12
 		)
 		target_pos = Vector3(
-			last_block_p1.position.x,
+			-5,
 			last_block_p1.position.y,
-			last_block_p1.position.z
+			0
 		)
 		trajectory_line = trajectory_line_p2
 		angle = current_angle_p2
@@ -186,7 +187,7 @@ func spawn_projectile(player_num: int):
 	
 	var projectile = Projectile.instantiate()
 	add_child(projectile)
-	projectile.position = start_pos
+	projectile.position = start_pos  # Utilise la même position que la trajectoire
 	projectile.launch(launch_direction * adjusted_power)
 	
 	# Réinitialiser les variables
@@ -266,40 +267,55 @@ func spawn_base_block(player_num: int):
 func spawn_new_block(player_num: int):
 	await get_tree().create_timer(0.2).timeout
 	if player_num == 1 and can_spawn_p1 and game_active:
-			current_block_p1 = Block.instantiate()
-			current_block_p1.previous_block = last_block_p1
-			current_block_p1.move_on_x = alternate_movement_p1
-			current_block_p1.speed_multiplier = current_speed_multiplier_p1
-			current_block_p1.is_moving = true
-			add_child(current_block_p1)
-
-			var spawn_pos = Vector3(
-				-12 if alternate_movement_p1 else last_block_p1.position.x,
-				last_block_p1.position.y + current_block_p1.block_size.y,
-				# Offset en Z quand le mouvement est sur cet axe
-				last_block_p1.position.z + (3 if !alternate_movement_p1 else 0)
+		current_block_p1 = Block.instantiate()
+		current_block_p1.previous_block = last_block_p1
+		current_block_p1.move_on_x = alternate_movement_p1
+		current_block_p1.speed_multiplier = current_speed_multiplier_p1
+		
+		# S'assurer que le nouveau bloc a la même taille que le dernier bloc
+		if last_block_p1:
+			current_block_p1.block_size = Vector3(
+				last_block_p1.block_size.x,
+				current_block_p1.block_size.y,
+				last_block_p1.block_size.z
 			)
+		
+		current_block_p1.is_moving = true
+		add_child(current_block_p1)
 
-			current_block_p1.position = spawn_pos
-			alternate_movement_p1 = !alternate_movement_p1
+		var spawn_pos = Vector3(
+			-12 if alternate_movement_p1 else last_block_p1.position.x,
+			last_block_p1.position.y + current_block_p1.block_size.y,
+			# Offset en Z quand le mouvement est sur cet axe
+			last_block_p1.position.z + (3 if !alternate_movement_p1 else 0)
+		)
+
+		current_block_p1.position = spawn_pos
+		alternate_movement_p1 = !alternate_movement_p1
 		
 	elif player_num == 2 and can_spawn_p2 and game_active:
 		current_block_p2 = Block.instantiate()
 		current_block_p2.previous_block = last_block_p2
 		current_block_p2.move_on_x = alternate_movement_p2
 		current_block_p2.speed_multiplier = current_speed_multiplier_p2
+		
+		# S'assurer que le nouveau bloc a la même taille que le dernier bloc
+		if last_block_p2:
+			current_block_p2.block_size = Vector3(
+				last_block_p2.block_size.x,
+				current_block_p2.block_size.y,
+				last_block_p2.block_size.z
+			)
+			
 		current_block_p2.is_moving = true
 		add_child(current_block_p2)
 
 		var spawn_pos = Vector3(
-			13 if alternate_movement_p2 else last_block_p2.position.x,  # Ajusté pour la position 20
+			13 if alternate_movement_p2 else last_block_p2.position.x,
 			last_block_p2.position.y + current_block_p2.block_size.y,
-			last_block_p2.position.z  # Position Z - Devrait être fixe pour chaque joueur
-
+			last_block_p2.position.z
 		)
 		
-		
-
 		current_block_p2.position = spawn_pos
 		alternate_movement_p2 = !alternate_movement_p2
 
@@ -366,14 +382,14 @@ func declare_winner():
 		message = "IT'S A TIE!"
 	elif winner == 1 || winner == 2:
 		if score_p1 >= target_score || score_p2 >= target_score:
-			message = "THE WINNER IS P%d BY REACHING TARGET SCORE!" % winner
+			message = "THE WINNER IS P%d \nBY REACHING TARGET SCORE!" % winner
 		elif !p1_alive && !p2_alive:
-			message = "THE WINNER IS P%d WITH HIGHER SCORE!" % winner
+			message = "THE WINNER IS P%d \nWITH HIGHER SCORE!" % winner
 		else:
-			message = "THE WINNER IS P%d BY SURPASSING OPPONENT!" % winner
+			message = "THE WINNER IS P%d \nBY SURPASSING OPPONENT!" % winner
 	
 	if winner_label:
-		winner_label.text = message + "\nPress R to restart"
+		winner_label.text = message + "\n\nPress R to restart"
 		winner_label.show()
 	if ui_p1:
 		ui_p1.show_winner_message(winner)
@@ -555,10 +571,10 @@ func update_trajectory_preview(player: int):
 	var target_pos: Vector3
 	
 	if player == 1:
-		# Position de départ depuis la tour P1
+		# Position de départ depuis la GAUCHE de la tour P1
 		start_pos = Vector3(
-			-7,  # 2 unités à gauche de la tour P1 (-5 - 2)
-			1,  # Hauteur fixe
+			-3,  # Plus à gauche que la tour P1 qui est à -5
+			1,  # Légèrement au-dessus du dernier bloc
 			0   # Même Z que la tour P1
 		)
 		# Position cible sur la tour P2
@@ -570,11 +586,11 @@ func update_trajectory_preview(player: int):
 		trajectory_line = trajectory_line_p1
 		angle = current_angle_p1
 	else:
-		# Position de départ depuis la tour P2
+		# Position de départ depuis la DROITE de la tour P2
 		start_pos = Vector3(
-			22,  # 2 unités à droite de la tour P2 (20 + 2)
-			1,   # Hauteur fixe
-			15   # Même Z que la tour P2
+			23,  # Plus à droite que la tour P2 qui est à 20
+			1,   # Légèrement au-dessus du dernier bloc
+			12   # Même Z que la tour P2
 		)
 		# Position cible sur la tour P1
 		target_pos = Vector3(

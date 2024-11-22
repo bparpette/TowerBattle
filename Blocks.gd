@@ -275,3 +275,18 @@ func cut_block_on_axis(axis: String):
 	create_tween().tween_callback(falling_block.queue_free).set_delay(3.0)
 	
 	return true
+
+func reduce_size(reduction_factor: float):
+	print("Reducing block size by: ", reduction_factor)
+	# Réduire la taille en X et Z mais pas en Y
+	var new_size = Vector3(
+		block_size.x * (1.0 - reduction_factor),
+		block_size.y,
+		block_size.z * (1.0 - reduction_factor)
+	)
+	
+	print("Old size: ", block_size)
+	print("New size: ", new_size)
+	
+	block_size = new_size
+	setup_block()  # Recrée le bloc avec la nouvelle taille
