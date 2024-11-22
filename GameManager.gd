@@ -557,30 +557,30 @@ func update_trajectory_preview(player: int):
 	if player == 1:
 		# Position de départ depuis la tour P1
 		start_pos = Vector3(
-			last_block_p1.position.x,  # Position X de la tour P1
-			last_block_p1.position.y + 1,  # Légèrement au-dessus du dernier bloc
-			last_block_p1.position.z  # Même Z que la tour
+			-7,  # 2 unités à gauche de la tour P1 (-5 - 2)
+			1,  # Hauteur fixe
+			0   # Même Z que la tour P1
 		)
 		# Position cible sur la tour P2
 		target_pos = Vector3(
-			last_block_p2.position.x,  # Position X de la tour P2
-			last_block_p2.position.y,  # Hauteur de la tour P2
-			last_block_p2.position.z   # Position Z de la tour P2
+			20,  # Position X fixe de la tour P2
+			last_block_p2.position.y,  # On vise la hauteur actuelle
+			15   # Position Z fixe de la tour P2
 		)
 		trajectory_line = trajectory_line_p1
 		angle = current_angle_p1
 	else:
 		# Position de départ depuis la tour P2
 		start_pos = Vector3(
-			last_block_p2.position.x,
-			last_block_p2.position.y + 1,
-			last_block_p2.position.z
+			22,  # 2 unités à droite de la tour P2 (20 + 2)
+			1,   # Hauteur fixe
+			15   # Même Z que la tour P2
 		)
 		# Position cible sur la tour P1
 		target_pos = Vector3(
-			last_block_p1.position.x,
-			last_block_p1.position.y,
-			last_block_p1.position.z
+			-5,  # Position X fixe de la tour P1
+			last_block_p1.position.y,  # On vise la hauteur actuelle
+			0    # Position Z fixe de la tour P1
 		)
 		trajectory_line = trajectory_line_p2
 		angle = current_angle_p2

@@ -15,9 +15,13 @@ metallic_specular = 0.43
 
 [node name="Projectile" type="RigidBody3D"]
 collision_layer = 2
-collision_mask = 16
+collision_mask = 4 
 mass = 2.0
+contact_monitor = true 
+max_contacts_reported = 4
 script = ExtResource("1_a1va0")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_lafjt")

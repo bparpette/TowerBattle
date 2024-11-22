@@ -7,14 +7,26 @@ var initial_velocity = Vector3.ZERO
 
 func _ready():
 	collision_layer = 2
-	collision_mask = 1 | 4
+	collision_mask = 4  # On simplifie pour ne détecter que les blocks
+	print;;("INIT")
 
 func launch(initial_velocity: Vector3):
 	self.initial_velocity = initial_velocity
 	linear_velocity = initial_velocity
-	
 
-# Fonction pour calculer la trajectoire
+func _physics_process(_delta):
+	for body in get_colliding_bodies():
+		print("Collision with: ", body.name)
+		if body.is_in_group("blocks"):
+			print("C'est un block!")
+			_on_body_entered(body)
+
+func _on_body_entered(body):
+	print("aaaa")
+	if body is RigidBody3D and body.is_in_group("blocks"):
+		print("IMPACTE")
+		queue_free()  # On détruit le projectile après impact
+
 func calculate_trajectory(steps: int = 50, time_step: float = 0.1) -> Array:
 	var points = []
 	var pos = position
