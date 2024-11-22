@@ -1,12 +1,12 @@
 extends Node3D
 
 var Block = preload("res://Block.tscn")
-var Projectile = preload("res://Projectile.tscn")
+var Projectile = preload("res://projectile.tscn")
+
 @onready var camera_p1 = $"../ViewportLayout/SubViewportContainer1/SubViewport1/CameraP1"
 @onready var camera_p2 = $"../ViewportLayout/SubViewportContainer2/SubViewport2/CameraP2"
 @onready var ui_p1 = $"../ViewportLayout/SubViewportContainer1/ControlP1"
 @onready var ui_p2 = $"../ViewportLayout/SubViewportContainer2/ControlP2"
-
 @onready var winner_label = $"../WinnerLabel"
 
 # Original variables
@@ -103,128 +103,6 @@ func recalculate_tower_height(is_p1_tower: bool):
 			camera_p2.update_height(stack_height_p2)
 	
 	check_game_state()
-
-func check_tower_stability():
-	await get_tree().create_timer(0.2).timeout # Attendre que les blocs détruits soient enlevés
-	
-	# Vérifier chaque tour
-	check_single_tower(true)  # P1
-	check_single_tower(false) # P2
-
-func check_single_tower(is_p1: bool):
-	var blocks = []
-	var base_y = 0.5 # Hauteur approximative du bloc de base
-	
-	# Collecter tous les blocs de la tour
-	for block in get_children():
-		if block is RigidBody3D:
-			if (is_p1 and block.position.x < 0) or (not is_p1 and block.position.x > 0):
-				blocks.append(block)
-	
-	# Trier les blocs par hauteur
-	blocks.sort_custom(func(a, b): return a.position.y < b.position.y)
-	
-	# Pour chaque bloc
-	for i in range(blocks.size()):
-		var block = blocks[i]
-		if block.position.y <= base_y:
-			continue # Ignorer le bloc de base
-			
-		# Vérifier s'il y a un support direct en dessous
-		var has_support = false
-		for lower_block in blocks:
-			if lower_block == block:
-				continue
-				
-			if lower_block.position.y < block.position.y and \
-			   abs(lower_block.position.x - block.position.x) < 0.5 and \
-			   abs(lower_block.position.z - block.position.z) < 0.5 and \
-			   block.position.y - lower_block.position.y < 1.0:
-				has_support = true
-				break
-		
-		# Si pas de support, faire tomber le bloc
-		if not has_support:
-			block.freeze = false
-			block.gravity_scale = 1.0
-			
-			# Supprimer le bloc après une courte chute
-			get_tree().create_timer(1.0).timeout.connect(func():
-				if is_instance_valid(block):
-					block.queue_free()
-					# Recalculer la hauteur après la suppression
-					recalculate_tower_height(is_p1))
-
-func check_tower_blocks(is_p1: bool):
-	var blocks = []
-	# Collecter tous les blocs de la tour
-	for block in get_children():
-		if block is RigidBody3D:
-			if (is_p1 and block.position.x < 0) or (not is_p1 and block.position.x > 0):
-				blocks.append(block)
-	
-	# Trier les blocs par hauteur (du plus bas au plus haut)
-	blocks.sort_custom(func(a, b): return a.position.y < b.position.y)
-	
-	# Pour chaque bloc (sauf le bloc de base), vérifier s'il a un support
-	for i in range(1, blocks.size()):
-		var current_block = blocks[i]
-		var has_support = false
-		
-		# Vérifier si un bloc en dessous supporte celui-ci
-		for j in range(i):
-			var lower_block = blocks[j]
-			if is_block_supporting(lower_block, current_block):
-				has_support = true
-				break
-		
-		# Si pas de support, faire tomber le bloc
-		if not has_support:
-			make_block_fall(current_block)
-
-func is_block_supporting(lower_block: Node3D, upper_block: Node3D) -> bool:
-	# Vérifier si le bloc inférieur supporte le bloc supérieur
-	var tolerance = 0.1  # Tolérance pour la superposition
-	var height_diff = upper_block.position.y - lower_block.position.y
-	
-	# Vérifier si le bloc est juste au-dessus (avec une certaine tolérance)
-	if height_diff > 0.4 and height_diff < 0.6:
-		# Vérifier la superposition en X et Z
-		var x_overlap = abs(upper_block.position.x - lower_block.position.x) < tolerance
-		var z_overlap = abs(upper_block.position.z - lower_block.position.z) < tolerance
-		return x_overlap and z_overlap
-	
-	return false
-
-func make_block_fall(block: RigidBody3D):
-	block.freeze = false
-	block.gravity_scale = 1.0  # Activer la gravité
-	# Ajouter une petite force aléatoire pour rendre la chute plus naturelle
-	block.apply_central_impulse(Vector3(
-		randf_range(-0.1, 0.1),
-		0,
-		randf_range(-0.1, 0.1)
-	))
-	
-	# S'assurer que le bloc sera supprimé quand il tombe trop bas
-	var fall_timer = Timer.new()
-	add_child(fall_timer)
-	fall_timer.wait_time = 3.0  # Temps avant suppression
-	fall_timer.one_shot = true
-	fall_timer.connect("timeout", func():
-		if is_instance_valid(block):
-			block.queue_free()
-		fall_timer.queue_free()
-	)
-	fall_timer.start()
-
-func on_blocks_destroyed():
-	# Attendre une frame pour que les blocs soient bien supprimés
-	await get_tree().process_frame
-	
-	# Recalculer les deux tours
-	recalculate_tower_height(true)  # P1
-	recalculate_tower_height(false) # P2
 
 func setup_trajectory_lines():
 	# Charger le script de trajectoire

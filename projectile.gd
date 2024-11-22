@@ -13,10 +13,6 @@ func launch(initial_velocity: Vector3):
 	self.initial_velocity = initial_velocity
 	linear_velocity = initial_velocity
 	
-func _on_body_entered(body):
-	if body.has_method("handle_impact"):
-		body.handle_impact(damage)
-	queue_free()
 
 # Fonction pour calculer la trajectoire
 func calculate_trajectory(steps: int = 50, time_step: float = 0.1) -> Array:

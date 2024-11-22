@@ -84,12 +84,6 @@ func setup_block():
 	collision.shape = shape
 	add_child(collision)
 	
-	#print("Block setup avec taille: ", block_size)  # Debug
-
-# Dans la fonction cut_block_on_axis, ajouter ceci pour le bloc qui tombe
-# (dans la partie où vous créez le falling_block)
-	
-	
 
 func update_color():
 	if has_node("MeshInstance3D"):
@@ -275,111 +269,9 @@ func cut_block_on_axis(axis: String):
 		position.z = new_pos
 	
 	setup_block()
-	#print(position.x)
-	#print(position.y)
 	freeze = true
 	
 	# Supprimer le bloc qui tombe après quelques secondes
 	create_tween().tween_callback(falling_block.queue_free).set_delay(3.0)
 	
 	return true
-
-# func handle_impact(damage: float):
-# 	print("handle_impact appelé avec dommage: ", damage)
-	
-# 	# Réduire la taille du bloc touché de manière plus significative
-# 	var height_reduction = damage * 0.5  # 50% de l'effet du dégât
-# 	print("Réduction de hauteur: ", height_reduction)
-	
-# 	# Sauvegarder l'ancienne taille pour le debug
-# 	var old_size = block_size.y
-	
-# 	# Réduire la taille avec une réduction minimum plus importante
-# 	block_size.y = max(block_size.y - height_reduction, 0.2)
-	
-# 	print("Taille avant: ", old_size)
-# 	print("Nouvelle taille: ", block_size.y)
-	
-# 	# Ajuster la position verticale pour maintenir la connexion avec les autres blocs
-# 	position.y -= height_reduction / 2
-	
-# 	# Si le bloc est trop petit, le supprimer
-# 	if block_size.y < 0.2:
-# 		queue_free()
-# 		return
-	
-# 	# Recréer la forme physique du bloc
-# 	setup_block()
-	
-# 	# Notifier le GameManager
-# 	if get_parent() and get_parent().has_method("recalculate_tower_height"):
-# 		var is_p1_tower = position.x < 0
-# 		get_parent().recalculate_tower_height(is_p1_tower)
-
-# Dans Blocks.gd, modifie la fonction handle_impact:
-
-func handle_impact(damage: float):
-	print("\n=== IMPACT DETECTED ===")
-	print("Block position:", position)
-	
-	# Identifier si c'est la tour P1 ou P2 basé sur la position X
-	var is_p1_tower = position.x < 0
-	print("Tower hit:", "P1" if is_p1_tower else "P2")
-	
-	# Récupérer tous les blocs de la même tour
-	var parent = get_parent()
-	if parent:
-		var blocks_affected = 0
-		print("Original block size:", block_size)
-		
-		for block in parent.get_children():
-			if block is RigidBody3D and block.has_method("reduce_size"):
-				# Vérifier si le bloc appartient à la même tour
-				var block_is_p1 = block.position.x < 0
-				if block_is_p1 == is_p1_tower:
-					print("Reducing block at position:", block.position)
-					block.reduce_size(0.7)  # Réduire de 30%
-					blocks_affected += 1
-		
-		print("Total blocks affected:", blocks_affected)
-		# Notifier le GameManager pour recalculer la hauteur
-		parent.recalculate_tower_height(is_p1_tower)
-		print("=== IMPACT PROCESSING COMPLETE ===\n")
-
-# Modifier la fonction reduce_size dans Blocks.gd
-func reduce_size(scale_factor: float):
-	print("\n--- Reducing block size ---")
-	print("Before reduction:")
-	print("Position:", position)
-	print("Current size:", block_size)
-	
-	# Réduire la taille en X et Z
-	var old_size = block_size
-	block_size.x *= scale_factor
-	block_size.z *= scale_factor
-	
-	print("After reduction:")
-	print("New size:", block_size)
-	print("Reduction factor:", scale_factor)
-	
-	# Vérifier la taille minimum
-	var min_size = 0.5
-	if block_size.x < min_size || block_size.z < min_size:
-		print("Block too small, destroying!")
-		queue_free()
-		return
-	
-	# Recréer le bloc avec la nouvelle taille
-	setup_block()
-	
-	# Ajuster la position pour maintenir l'alignement
-	var old_pos = position
-	if position.x < 0:  # P1
-		position.x = -5
-		position.z = 0
-	else:  # P2
-		position.x = 20
-		position.z = 15
-	
-	print("Position adjusted from", old_pos, "to", position)
-	print("--- Size reduction complete ---\n")

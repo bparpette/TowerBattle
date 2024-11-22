@@ -25,6 +25,3 @@ shape = SubResource("SphereShape3D_lafjt")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
 mesh = SubResource("SphereMesh_y3yiy")
 surface_material_override/0 = SubResource("StandardMaterial3D_wryn3")
-
-
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -9,8 +9,6 @@ var is_player_one: bool  # Ajout de la déclaration de la variable
 
 
 func _ready():
-	#print("\n=== Camera Initializing ===")
-	#print("Node name: ", name)
 	is_player_one = "P1" in name
 	
 	if is_player_one:
@@ -38,7 +36,4 @@ func _process(delta):
 	look_at(look_at_pos)
 
 func update_height(new_height: float):
-	#print("\n=== Camera Height Update (" + name + ") ===")
-	#print("Previous target height: ", target_height)
-	#print("New target height: ", new_height)
 	target_height = new_height

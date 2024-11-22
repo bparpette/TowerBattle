@@ -10,5 +10,3 @@ continuous_cd = true
 max_contacts_reported = 4
 script = ExtResource("1_nueui")
 
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
-
