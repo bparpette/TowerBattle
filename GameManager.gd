@@ -69,13 +69,16 @@ const BASE_POWER = 20.0  # Puissance de base
 # Add at the top with other variables
 var cleanup_height = -10.0  # Height at which blocks are deleted
 
-func _ready():
+func _ready():	
+	# Ton code existant
 	setup_projectile_timers()
 	if winner_label:
 		winner_label.hide()
 	await get_tree().create_timer(0.1).timeout
 	reset_game()
 	setup_trajectory_lines()
+
+	
 
 func recalculate_tower_height(is_p1_tower: bool):
 	if is_p1_tower:
@@ -553,6 +556,7 @@ func _physics_process(_delta):
 
 func _process(delta):
 
+	print("FPS: " + str(Engine.get_frames_per_second()))
 	if game_ended:
 		# Effacer les trajectoires existantes
 		if trajectory_line_p1:
