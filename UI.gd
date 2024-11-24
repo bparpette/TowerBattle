@@ -51,8 +51,10 @@ func _ready():
 
 func update_score(score: int, player_number: int = 1):
 	if player_number == -1:
-		player_number = 2 if name == "ControlP2" else 1
-	
+		player_number = 2 if "P2" in name else 1
+	else:
+		player_number = 2 if "P2" in name else 1  # Force le bon numéro de joueur basé sur le nom du Control
+
 	# print("updating score for: ", name, " player: ", player_number)
 
 

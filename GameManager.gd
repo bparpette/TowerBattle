@@ -147,7 +147,7 @@ func spawn_projectile(player_num: int):
 		start_pos = Vector3(
 			-3,  # Même position que dans update_trajectory_preview
 			1,
-			0
+			2
 		)
 		target_pos = Vector3(
 			20,
@@ -158,9 +158,9 @@ func spawn_projectile(player_num: int):
 		angle = current_angle_p1
 	else:
 		start_pos = Vector3(
-			23,  # Même position que dans update_trajectory_preview
+			18,  # Même position que dans update_trajectory_preview
 			1,
-			12
+			13
 		)
 		target_pos = Vector3(
 			-5,
@@ -575,7 +575,7 @@ func update_trajectory_preview(player: int):
 		start_pos = Vector3(
 			-3,  # Plus à gauche que la tour P1 qui est à -5
 			1,  # Légèrement au-dessus du dernier bloc
-			0   # Même Z que la tour P1
+			2   # Même Z que la tour P1
 		)
 		# Position cible sur la tour P2
 		target_pos = Vector3(
@@ -588,9 +588,9 @@ func update_trajectory_preview(player: int):
 	else:
 		# Position de départ depuis la DROITE de la tour P2
 		start_pos = Vector3(
-			23,  # Plus à droite que la tour P2 qui est à 20
+			18,  # Plus à droite que la tour P2 qui est à 20
 			1,   # Légèrement au-dessus du dernier bloc
-			12   # Même Z que la tour P2
+			13   # Même Z que la tour P2
 		)
 		# Position cible sur la tour P1
 		target_pos = Vector3(
