@@ -1,7 +1,7 @@
 extends Control
 
 @onready var score_label = get_node("Label")
-@onready var winner_label = $"../WinnerLabel" 
+@onready var winner_label = $"../../../WinnerLabel" 
 var progress_bar: ProgressBar
 var cooldown_indicator: Label
 

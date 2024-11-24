@@ -11,13 +11,12 @@ var is_player_one: bool  # Ajout de la déclaration de la variable
 func _ready():
 	is_player_one = "P1" in name
 	
+	# Ensure proper initial positioning based on player
 	if is_player_one:
-		# Caméra P1 regarde sa tour de face avec la tour P2 en arrière-plan
-		position = Vector3(-13, 5, -11)  # Ajusté pour voir la tour à -5
+		position = Vector3(-13, 5, -11)
 		rotation_degrees = Vector3(-15, 45, 0)
 	else:
-		# Caméra P2 regarde sa tour de face avec la tour P1 en arrière-plan
-		position = Vector3(28, 5, 26)  # Ajusté pour voir la tour à 20
+		position = Vector3(28, 5, 26)
 		rotation_degrees = Vector3(-15, -225, 0)
 	
 	initial_position = position

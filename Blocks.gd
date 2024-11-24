@@ -8,6 +8,7 @@ var direction_z = 1
 var move_on_x = true
 var block_size = Vector3(3, 0.5, 3)
 var previous_block = null
+var networked_block = false
 
 var base_color: Color
 var next_color: Color
@@ -93,7 +94,7 @@ func update_color():
 			mesh.material_override.albedo_color = base_color.lerp(next_color, height_factor)
 
 func _physics_process(delta):
-	if is_moving:
+	if is_moving and !networked_block:
 		var current_speed = base_speed * speed_multiplier
 		
 		if move_on_x:
@@ -290,3 +291,29 @@ func reduce_size(reduction_factor: float):
 	
 	block_size = new_size
 	setup_block()  # Recrée le bloc avec la nouvelle taille
+	
+func serialize() -> Dictionary:
+	return {
+		"position": position,
+		"rotation": rotation,
+		"block_size": block_size,
+		"base_color": base_color,
+		"next_color": next_color,
+		"is_moving": is_moving,
+		"freeze": freeze
+	}
+
+func deserialize(data: Dictionary) -> void:
+	position = data.position
+	rotation = data.rotation
+	if data.has("block_size"):
+		block_size = data.block_size
+	if data.has("base_color"):
+		base_color = data.base_color
+	if data.has("next_color"):
+		next_color = data.next_color
+	if data.has("is_moving"):
+		is_moving = data.is_moving
+	if data.has("freeze"):
+		freeze = data.freeze
+	setup_block()

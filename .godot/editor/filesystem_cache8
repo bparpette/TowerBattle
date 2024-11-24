@@ -1,0 +1,17 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1732454366
+Block.tscn::PackedScene::8017873481264289842::1732330983::0::1::::<><>::res://Blocks.gd
+Blocks.gd::GDScript::-1::1732352827::0::1::::<>RigidBody3D<>::
+Camera.gd::GDScript::-1::1732357277::0::1::::<>Camera3D<>::
+GameManager.gd::GDScript::-1::1732445376::0::1::::<>Node3D<>::
+icon.svg::CompressedTexture2D::3233904931610932117::1732330983::1732331090::1::::<><>::
+lobby.gd::GDScript::-1::1732360990::0::1::::<>Control<>::
+Lobby.tscn::PackedScene::549653985587108962::1732445580::0::1::::<><>::res://lobby.gd<>res://NetworkManager.gd
+main.tscn::PackedScene::1032902345487365857::1732445671::0::1::::<><>::res://Camera.gd<>res://GameManager.gd<>res://UI.gd<>res://NetworkManager.gd
+NetworkManager.gd::GDScript::-1::1732445165::0::1::::<>Node<>::
+projectile.gd::GDScript::-1::1732330983::0::1::::<>RigidBody3D<>::
+projectile.tscn::PackedScene::8467243241577647560::1732330983::0::1::::<><>::res://projectile.gd
+README.md::TextFile::-1::1732330983::0::1::::<><>::
+TrajectoryLine.gd::GDScript::-1::1732330983::0::1::::<>Node3D<>::
+UI.gd::GDScript::-1::1732332882::0::1::::<>Control<>::
+UI.tscn::PackedScene::6579591786924138377::1732330983::0::1::::<><>::res://UI.gd
