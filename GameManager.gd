@@ -203,6 +203,10 @@ func spawn_projectile(player_num: int):
 		trajectory_line.clear()
 
 func reset_game():
+	var overlay = get_node("../GameOverOverlay")
+	if overlay:
+		overlay.hide()
+		
 	if winner_label:
 		winner_label.hide()
 
@@ -224,27 +228,48 @@ func reset_game():
 	game_ended = false
 	can_spawn_p1 = true
 	can_spawn_p2 = true
-	alternate_movement_p1 = true  # Réinitialiser l'alternance des mouvements
+	alternate_movement_p1 = true
 	alternate_movement_p2 = true
-	current_block_p1 = null      # Réinitialiser les blocs courants
+	current_block_p1 = null
 	current_block_p2 = null
-	last_block_p1 = null         # Réinitialiser les derniers blocs
+	last_block_p1 = null
 	last_block_p2 = null
 	
+	# Reset des variables de projectiles
+	can_shoot_p1 = false  # Changé à false
+	can_shoot_p2 = false  # Changé à false
+	charging_power_p1 = false
+	charging_power_p2 = false	
+	
+	# Redémarrer les timers depuis 0
+	projectile_timer_p1.stop()
+	projectile_timer_p2.stop()
+	projectile_timer_p1.start()  # Démarre le timer depuis 0
+	projectile_timer_p2.start()  # Démarre le timer depuis 0
+	
+	# Mettre à jour l'UI pour montrer 0%
 	if ui_p1:
 		ui_p1.hide_winner_message()
 		ui_p1.update_score(score_p1)
+		ui_p1.update_cooldown(0)  # Montre 0% au début
 	if ui_p2:
 		ui_p2.hide_winner_message()
 		ui_p2.update_score(score_p2)
-	
+		ui_p2.update_cooldown(0)  # Montre 0% au début
+		
+	# Clear des trajectoires
+	if trajectory_line_p1:
+		trajectory_line_p1.clear()
+	if trajectory_line_p2:
+		trajectory_line_p2.clear()
+		
 	# Attendre un court instant pour s'assurer que tout est nettoyé
 	await get_tree().create_timer(0.1).timeout
 	
 	# Spawner les blocs de base et les premiers blocs mobiles
 	spawn_base_block(1)
 	spawn_base_block(2)
-	await get_tree().create_timer(0.2).timeout  # Petit délai entre les spawns
+	await get_tree().create_timer(0.2).timeout
 	spawn_new_block(1)
 	spawn_new_block(2)
 
@@ -379,18 +404,24 @@ func declare_winner():
 	var message = ""
 	
 	if winner == 0:
-		message = "IT'S A TIE!"
+		message = "IT'S A TIE!\n\nPress R to restart\nPress C to quit"
 	elif winner == 1 || winner == 2:
 		if score_p1 >= target_score || score_p2 >= target_score:
-			message = "THE WINNER IS P%d \nBY REACHING TARGET SCORE!" % winner
+			message = "PLAYER %d WINS!\nReached target score first!\n\nPress R to restart\nPress C to quit" % winner
 		elif !p1_alive && !p2_alive:
-			message = "THE WINNER IS P%d \nWITH HIGHER SCORE!" % winner
+			message = "PLAYER %d WINS!\nHighest tower!\n\nPress R to restart\nPress C to quit" % winner
 		else:
-			message = "THE WINNER IS P%d \nBY SURPASSING OPPONENT!" % winner
+			message = "PLAYER %d WINS!\nLast tower standing!\n\nPress R to restart\nPress C to quit" % winner
 	
-	if winner_label:
-		winner_label.text = message + "\n\nPress R to restart"
-		winner_label.show()
+	# Récupérer et afficher l'overlay avec le fond semi-transparent
+	var overlay = get_node("../GameOverOverlay")
+	if overlay:
+		overlay.show()
+		var winner_label = overlay.get_node("WinnerLabel")
+		if winner_label:
+			winner_label.text = message
+
+	# Mise à jour des UI des joueurs
 	if ui_p1:
 		ui_p1.show_winner_message(winner)
 	if ui_p2:
@@ -425,96 +456,91 @@ func declare_winner():
 
 func _input(event):
 
-	# Ajouter cette condition au début de la fonction _input
-	if event.is_action_pressed("ui_reset"):  # "ui_reset" doit être configuré sur la touche R
+	if event.is_action_pressed("ui_c"):  # Assurez-vous d'avoir configuré cette touche dans les paramètres du projet
+		if game_ended:  # Ne fonctionne que si le jeu est terminé
+			get_tree().change_scene_to_file("res://menu.tscn")
+			return
+
+	# Reset du jeu
+	if event.is_action_pressed("ui_reset"):
 		if game_ended:
 			reset_game()
 			return
 
 	# Player 1 block placement control
 	if event.is_action_pressed("ui_select_p1"):
-		if current_block_p1 and current_block_p1.is_moving and p1_alive and !game_ended:
-			if current_block_p1.stop_moving():
-				can_spawn_p1 = false
-				last_block_p1 = current_block_p1
-				stack_height_p1 = current_block_p1.position.y
-				camera_p1.update_height(stack_height_p1)
-				if last_block_p1.freeze == true:
-					score_p1 += 1
-					update_score(1, score_p1)
-					
-					# Vérifier immédiatement si le score cible est atteint
-					if score_p1 >= target_score:
-						game_ended = true
-						winner = 1
-						declare_winner()
-						return
+		# Vérifier que le joueur est en vie et qu'un bloc existe
+		if p1_alive and current_block_p1 != null and is_instance_valid(current_block_p1):
+			if current_block_p1.is_moving and !game_ended:
+				if current_block_p1.stop_moving():
+					can_spawn_p1 = false
+					last_block_p1 = current_block_p1
+					stack_height_p1 = current_block_p1.position.y
+					camera_p1.update_height(stack_height_p1)
+					if last_block_p1.freeze == true:
+						score_p1 += 1
+						update_score(1, score_p1)
 						
-					if !p2_alive:
-						check_game_state()
-					
-					if !game_ended:  # Ne spawner que si le jeu n'est pas fini
-						current_speed_multiplier_p1 += speed_increase_per_block
-						await get_tree().create_timer(0.5).timeout
-						can_spawn_p1 = true
-						spawn_new_block(1)
-			else:
-				game_over(1)
+						if score_p1 >= target_score:
+							game_ended = true
+							winner = 1
+							declare_winner()
+							return
+							
+						if !p2_alive:
+							check_game_state()
+						
+						if !game_ended:
+							current_speed_multiplier_p1 += speed_increase_per_block
+							await get_tree().create_timer(0.5).timeout
+							can_spawn_p1 = true
+							spawn_new_block(1)
+				else:
+					game_over(1)
 	
 	# Player 2 block placement control
 	if event.is_action_pressed("ui_select_p2"):
-		if current_block_p2 and current_block_p2.is_moving and p2_alive and !game_ended:
-			if current_block_p2.stop_moving():
-				can_spawn_p2 = false
-				last_block_p2 = current_block_p2
-				stack_height_p2 = current_block_p2.position.y
-				camera_p2.update_height(stack_height_p2)
-				if last_block_p2.freeze == true:
-					score_p2 += 1
-					update_score(2, score_p2)
-					
-					# Vérifier immédiatement si le score cible est atteint
-					if score_p2 >= target_score:
-						game_ended = true
-						winner = 2
-						declare_winner()
-						return
+		# Vérifier que le joueur est en vie et qu'un bloc existe
+		if p2_alive and current_block_p2 != null and is_instance_valid(current_block_p2):
+			if current_block_p2.is_moving and !game_ended:
+				if current_block_p2.stop_moving():
+					can_spawn_p2 = false
+					last_block_p2 = current_block_p2
+					stack_height_p2 = current_block_p2.position.y
+					camera_p2.update_height(stack_height_p2)
+					if last_block_p2.freeze == true:
+						score_p2 += 1
+						update_score(2, score_p2)
 						
-					if !p1_alive:
-						check_game_state()
-					
-					if !game_ended:  # Ne spawner que si le jeu n'est pas fini
-						current_speed_multiplier_p2 += speed_increase_per_block
-						await get_tree().create_timer(0.5).timeout
-						can_spawn_p2 = true
-						spawn_new_block(2)
-			else:
-				game_over(2)
+						if score_p2 >= target_score:
+							game_ended = true
+							winner = 2
+							declare_winner()
+							return
+							
+						if !p1_alive:
+							check_game_state()
+						
+						if !game_ended:
+							current_speed_multiplier_p2 += speed_increase_per_block
+							await get_tree().create_timer(0.5).timeout
+							can_spawn_p2 = true
+							spawn_new_block(2)
+				else:
+					game_over(2)
 	
-	# # Shooting controls for Player 1
-	# if event.is_action_pressed("p1_shoot") and can_shoot_p1:
-	# 	var spawn_pos = Vector3(-7, last_block_p1.position.y + 1, 0)
-	# 	var direction = Vector3(1, 0.5, 0)  # Adjust as needed
-	# 	spawn_projectile(1, spawn_pos, direction)
-	
-	# # Shooting controls for Player 2
-	# if event.is_action_pressed("p2_shoot") and can_shoot_p2:
-	# 	var spawn_pos = Vector3(7, last_block_p2.position.y + 1, 0)
-	# 	var direction = Vector3(-1, 0.5, 0)  # Adjust as needed
-	# 	spawn_projectile(2, spawn_pos, direction)
-
-	 # Contrôles de tir pour P1
-	if event.is_action_pressed("p1_shoot") and can_shoot_p1:
+	# Contrôles de tir pour P1
+	if event.is_action_pressed("p1_shoot") and can_shoot_p1 and p1_alive and !game_ended:
 		charging_power_p1 = true
-	elif event.is_action_released("p1_shoot") and charging_power_p1:
+	elif event.is_action_released("p1_shoot") and charging_power_p1 and p1_alive and !game_ended:
 		spawn_projectile(1)
 		can_shoot_p1 = false
 		projectile_timer_p1.start()
 	
 	# Contrôles de tir pour P2
-	if event.is_action_pressed("p2_shoot") and can_shoot_p2:
+	if event.is_action_pressed("p2_shoot") and can_shoot_p2 and p2_alive and !game_ended:
 		charging_power_p2 = true
-	elif event.is_action_released("p2_shoot") and charging_power_p2:
+	elif event.is_action_released("p2_shoot") and charging_power_p2 and p2_alive and !game_ended:
 		spawn_projectile(2)
 		can_shoot_p2 = false
 		projectile_timer_p2.start()
@@ -526,6 +552,15 @@ func _physics_process(_delta):
 			child.queue_free()
 
 func _process(delta):
+
+	if game_ended:
+		# Effacer les trajectoires existantes
+		if trajectory_line_p1:
+			trajectory_line_p1.clear()
+		if trajectory_line_p2:
+			trajectory_line_p2.clear()
+		return
+
 	# Gestion de l'oscillation pour P1
 	if charging_power_p1:
 		current_angle_p1 += oscillation_speed * delta * oscillation_direction_p1

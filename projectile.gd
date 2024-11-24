@@ -33,22 +33,33 @@ func _on_body_entered(body):
 		
 		# Déterminer si on touche la tour P1 ou P2
 		var is_p1_tower = body.position.x < 0
+		
+		# Vérifier si le joueur est toujours en vie avant de continuer
+		if (is_p1_tower and !game_manager.p1_alive) or (!is_p1_tower and !game_manager.p2_alive):
+			queue_free()  # Détruire le projectile
+			return
+			
 		var current_moving_block = game_manager.current_block_p1 if is_p1_tower else game_manager.current_block_p2
 		var base_block = game_manager.last_block_p1 if is_p1_tower else game_manager.last_block_p2
 		
 		print("Reducing entire tower size, including moving block")
 		
-		# Réduire la taille du bloc en mouvement
-		if current_moving_block:
+		# Réduire la taille du bloc en mouvement seulement s'il existe
+		if current_moving_block and is_instance_valid(current_moving_block):
 			print("Reducing moving block size")
 			current_moving_block.reduce_size(reduction_factor)
-			
+		
 		# Réduire la taille de tous les blocs de la tour
+		# en vérifiant que chaque bloc est valide
 		var current_block = base_block
-		while current_block != null:
+		while current_block != null and is_instance_valid(current_block):
 			print("Reducing block at height: ", current_block.position.y)
 			current_block.reduce_size(reduction_factor)
 			current_block = current_block.previous_block
+			
+			# Vérification supplémentaire pour le bloc suivant
+			if current_block and !is_instance_valid(current_block):
+				break
 		
 		print("Finished reducing block sizes")
 		queue_free()  # Détruire le projectile après impact
